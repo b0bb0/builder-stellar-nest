@@ -41,55 +41,62 @@ export default function ProfessionalScanProgress({
 
   useEffect(() => {
     const startTime = Date.now();
+    const totalDuration = 6000; // 6 seconds
 
-    // Sophisticated scan phases
+    // Phases for 6 seconds
     const phases = [
-      { phase: "Target Reconnaissance", duration: 2000 },
-      { phase: "Network Discovery", duration: 3000 },
-      { phase: "Vulnerability Assessment", duration: 8000 },
-      { phase: "Security Analysis", duration: 5000 },
-      { phase: "Threat Intelligence", duration: 3000 },
-      { phase: "Report Generation", duration: 1000 },
+      { phase: "Target Reconnaissance", duration: 1000 },
+      { phase: "Network Discovery", duration: 1200 },
+      { phase: "Vulnerability Assessment", duration: 1500 },
+      { phase: "Security Analysis", duration: 1200 },
+      { phase: "Threat Intelligence", duration: 800 },
+      { phase: "Report Generation", duration: 300 },
     ];
 
     let currentPhaseIndex = 0;
+    let currentPhaseStart = 0;
 
-    const phaseInterval = setInterval(() => {
-      if (currentPhaseIndex < phases.length) {
-        const phase = phases[currentPhaseIndex];
-        setCurrentPhase(phase.phase);
+    // Smooth progress animation - updates every 16ms (~60fps)
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const baseProgress = Math.min((elapsed / totalDuration) * 100, 100);
 
-        const phaseProgress = 100 / phases.length;
-        const phaseStart = currentPhaseIndex * phaseProgress;
+      // Add small random variations for natural feel (±2%)
+      const randomVariation = (Math.random() - 0.5) * 4;
+      const smoothProgress = Math.max(
+        0,
+        Math.min(100, baseProgress + randomVariation),
+      );
 
-        let phaseElapsed = 0;
-        const phaseTimer = setInterval(() => {
-          phaseElapsed += 100;
-          const phaseProgressPercent = Math.min(
-            (phaseElapsed / phase.duration) * phaseProgress,
-            phaseProgress,
-          );
-          setProgress(phaseStart + phaseProgressPercent);
+      setProgress(smoothProgress);
 
-          // Simulate finding vulnerabilities
-          if (currentPhaseIndex >= 2 && Math.random() > 0.95) {
-            setVulnerabilitiesFound((prev) => prev + 1);
-          }
+      // Update phase based on time
+      let phaseElapsed = 0;
+      let phaseIndex = 0;
+      for (let i = 0; i < phases.length; i++) {
+        if (elapsed < phaseElapsed + phases[i].duration) {
+          phaseIndex = i;
+          break;
+        }
+        phaseElapsed += phases[i].duration;
+      }
 
-          if (phaseElapsed >= phase.duration) {
-            clearInterval(phaseTimer);
-            currentPhaseIndex++;
-          }
-        }, 100);
+      if (phaseIndex !== currentPhaseIndex) {
+        currentPhaseIndex = phaseIndex;
+        setCurrentPhase(phases[currentPhaseIndex].phase);
+      }
 
-        setTimeout(() => {
-          clearInterval(phaseTimer);
-        }, phase.duration);
-      } else {
-        // Scan complete
-        clearInterval(phaseInterval);
-        setCurrentPhase("Analysis Complete");
+      // Simulate finding vulnerabilities randomly
+      if (Math.random() > 0.998) {
+        setVulnerabilitiesFound((prev) => prev + 1);
+      }
+
+      // Complete after 6 seconds
+      if (elapsed >= totalDuration) {
+        clearInterval(progressInterval);
+        clearInterval(timeInterval);
         setProgress(100);
+        setCurrentPhase("Analysis Complete");
 
         const mockResult: ScanResult = {
           id: scanId,
@@ -106,12 +113,12 @@ export default function ProfessionalScanProgress({
           },
           startTime: new Date(startTime).toISOString(),
           endTime: new Date().toISOString(),
-          duration: elapsedTime,
+          duration: 6,
         };
 
         setTimeout(() => onScanComplete(mockResult), 1500);
       }
-    }, 100);
+    }, 16); // 60fps smooth updates
 
     // Update elapsed time
     const timeInterval = setInterval(() => {
@@ -119,7 +126,7 @@ export default function ProfessionalScanProgress({
     }, 1000);
 
     return () => {
-      clearInterval(phaseInterval);
+      clearInterval(progressInterval);
       clearInterval(timeInterval);
     };
   }, [scanId, onScanComplete]);
