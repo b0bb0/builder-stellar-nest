@@ -634,14 +634,14 @@ export default function ScannerDashboard({
               </GlassCard>
             </div>
 
-            {/* SMS Notification Form */}
+            {/* Full Access Registration Form */}
             <div className="mt-16">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-white mb-2">
-                  SMS Notification Setup
+                  Register for Full Access
                 </h3>
                 <p className="text-slate-400">
-                  Configure your SMS notification preferences
+                  Complete your registration to unlock all premium features
                 </p>
               </div>
 
@@ -667,7 +667,7 @@ export default function ScannerDashboard({
                   />
                   <div className="relative z-10">
                     <h4 className="text-2xl font-semibold text-white mb-8 text-center">
-                      Complete SMS Configuration
+                      Complete Your Registration
                     </h4>
 
                     <form className="space-y-6">
@@ -683,37 +683,92 @@ export default function ScannerDashboard({
                           type="tel"
                           placeholder="+1 (555) 123-4567"
                           className="w-full bg-slate-800/50 border border-green-500/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 transition-all"
+                          required
                         />
+                        <p className="text-xs text-green-400/70 mt-1">
+                          For SMS verification and security alerts
+                        </p>
                       </div>
 
-                      {/* Form 2: Sender Information */}
+                      {/* Form 2: Full Name */}
                       <div>
                         <label className="block text-sm font-medium text-blue-300 mb-2 flex items-center gap-2">
                           <span className="w-6 h-6 bg-blue-500/30 rounded-lg flex items-center justify-center text-xs font-bold">
                             2
                           </span>
-                          Sender Name
+                          Full Name
                         </label>
                         <input
                           type="text"
-                          placeholder="Security Alert System"
+                          placeholder="John Doe"
                           className="w-full bg-slate-800/50 border border-blue-500/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+                          required
                         />
                       </div>
 
-                      {/* Form 3: Message Template */}
+                      {/* Form 3: Email Address */}
                       <div>
                         <label className="block text-sm font-medium text-purple-300 mb-2 flex items-center gap-2">
                           <span className="w-6 h-6 bg-purple-500/30 rounded-lg flex items-center justify-center text-xs font-bold">
                             3
                           </span>
-                          Alert Message
+                          Email Address
                         </label>
-                        <textarea
-                          placeholder="Critical security threat detected..."
-                          rows={4}
-                          className="w-full bg-slate-800/50 border border-purple-500/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all resize-none"
+                        <input
+                          type="email"
+                          placeholder="john.doe@example.com"
+                          className="w-full bg-slate-800/50 border border-purple-500/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all"
+                          required
                         />
+                        <p className="text-xs text-purple-400/70 mt-1">
+                          For account verification and updates
+                        </p>
+                      </div>
+
+                      {/* Form 4: Organization */}
+                      <div>
+                        <label className="block text-sm font-medium text-cyan-300 mb-2 flex items-center gap-2">
+                          <span className="w-6 h-6 bg-cyan-500/30 rounded-lg flex items-center justify-center text-xs font-bold">
+                            4
+                          </span>
+                          Organization (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Your Company Name"
+                          className="w-full bg-slate-800/50 border border-cyan-500/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+                        />
+                      </div>
+
+                      {/* Terms and Conditions */}
+                      <div className="flex items-start gap-3 p-4 bg-slate-800/30 rounded-xl border border-slate-600/50">
+                        <input
+                          type="checkbox"
+                          id="terms"
+                          className="mt-1 w-4 h-4 text-purple-500 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                          required
+                        />
+                        <label
+                          htmlFor="terms"
+                          className="text-sm text-slate-300"
+                        >
+                          I agree to the{" "}
+                          <a
+                            href="#"
+                            className="text-purple-400 hover:text-purple-300 underline"
+                          >
+                            Terms of Service
+                          </a>{" "}
+                          and{" "}
+                          <a
+                            href="#"
+                            className="text-purple-400 hover:text-purple-300 underline"
+                          >
+                            Privacy Policy
+                          </a>
+                          . I consent to receive SMS notifications for security
+                          alerts and account updates.
+                        </label>
                       </div>
 
                       {/* Submit Button */}
@@ -721,7 +776,7 @@ export default function ScannerDashboard({
                         type="submit"
                         className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white font-bold py-4 px-8 rounded-xl hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-pink-500/25 text-lg"
                       >
-                        Configure SMS Notifications
+                        Register for Full Access
                       </button>
                     </form>
                   </div>
