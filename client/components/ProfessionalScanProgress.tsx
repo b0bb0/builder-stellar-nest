@@ -165,55 +165,76 @@ export default function ProfessionalScanProgress({
 
                   {/* Large Progress Circle */}
                   <div className="relative flex items-center justify-center">
-                    <div className="w-56 h-56 relative">
+                    <div className="w-64 h-64 relative">
+                      {/* Outer glow ring */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 via-cyan-400/30 to-blue-500/20 blur-xl"></div>
+
                       <svg
-                        className="w-56 h-56 transform -rotate-90"
+                        className="w-64 h-64 transform -rotate-90 relative z-10"
                         viewBox="0 0 100 100"
                       >
+                        {/* Background circle */}
                         <circle
                           cx="50"
                           cy="50"
-                          r="45"
-                          stroke="rgba(59, 130, 246, 0.1)"
-                          strokeWidth="4"
+                          r="42"
+                          stroke="rgba(30, 41, 59, 0.8)"
+                          strokeWidth="6"
                           fill="transparent"
                         />
+                        {/* Progress circle */}
                         <circle
                           cx="50"
                           cy="50"
-                          r="45"
-                          stroke="url(#progressGradient)"
-                          strokeWidth="4"
+                          r="42"
+                          stroke="url(#enhancedProgressGradient)"
+                          strokeWidth="6"
                           fill="transparent"
                           strokeLinecap="round"
-                          strokeDasharray={`${2 * Math.PI * 45}`}
-                          strokeDashoffset={`${2 * Math.PI * 45 * (1 - progress / 100)}`}
-                          className="transition-all duration-500 ease-out"
+                          strokeDasharray={`${2 * Math.PI * 42}`}
+                          strokeDashoffset={`${2 * Math.PI * 42 * (1 - progress / 100)}`}
+                          className="transition-all duration-100 ease-linear"
+                          style={{
+                            filter:
+                              "drop-shadow(0 0 8px rgba(59, 130, 246, 0.8))",
+                          }}
                         />
                         <defs>
                           <linearGradient
-                            id="progressGradient"
+                            id="enhancedProgressGradient"
                             x1="0%"
                             y1="0%"
                             x2="100%"
                             y2="100%"
                           >
-                            <stop offset="0%" stopColor="#3b82f6" />
-                            <stop offset="50%" stopColor="#06b6d4" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
+                            <stop offset="0%" stopColor="#60a5fa" />
+                            <stop offset="30%" stopColor="#3b82f6" />
+                            <stop offset="70%" stopColor="#06b6d4" />
+                            <stop offset="100%" stopColor="#67e8f9" />
                           </linearGradient>
                         </defs>
                       </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
+
+                      {/* Center content */}
+                      <div className="absolute inset-0 flex items-center justify-center z-20">
                         <div className="text-center">
-                          <div className="text-4xl font-light text-white mb-2">
+                          <div
+                            className="text-5xl font-light text-white mb-2"
+                            style={{
+                              fontFamily:
+                                "system-ui, -apple-system, sans-serif",
+                            }}
+                          >
                             {Math.round(progress)}%
                           </div>
-                          <div className="text-sm text-blue-300 uppercase tracking-wider">
+                          <div className="text-sm text-blue-300 uppercase tracking-widest font-medium">
                             Complete
                           </div>
                         </div>
                       </div>
+
+                      {/* Inner glow effect */}
+                      <div className="absolute inset-8 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-400/10 blur-sm"></div>
                     </div>
                   </div>
 
