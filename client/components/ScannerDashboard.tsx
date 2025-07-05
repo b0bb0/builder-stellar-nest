@@ -199,6 +199,45 @@ export default function ScannerDashboard({
                       </div>
                     </div>
 
+                    {/* Blue Luminescent Loading Bar */}
+                    <div className="w-full max-w-xs mx-auto">
+                      <div className="relative h-2 bg-slate-800/50 rounded-full overflow-hidden border border-slate-700/50">
+                        {/* Background glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-400/30 to-blue-500/20 animate-pulse"></div>
+
+                        {/* Main progress bar */}
+                        <div
+                          className="relative h-full bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 rounded-full transition-all duration-300 ease-out"
+                          style={{
+                            width: `${scanProgress}%`,
+                            boxShadow:
+                              "0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(6, 182, 212, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3)",
+                          }}
+                        >
+                          {/* Shimmer effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer rounded-full"></div>
+                        </div>
+
+                        {/* Edge glow effects */}
+                        <div
+                          className="absolute top-0 h-full w-8 bg-gradient-to-r from-transparent to-blue-400/50 rounded-r-full transition-all duration-300"
+                          style={{
+                            left: `${Math.max(0, scanProgress - 8)}%`,
+                            opacity: scanProgress > 5 ? 1 : 0,
+                          }}
+                        ></div>
+                      </div>
+
+                      {/* Progress indicators */}
+                      <div className="flex justify-between text-xs text-blue-300/70 mt-2">
+                        <span>0%</span>
+                        <span className="text-cyan-300 font-medium">
+                          {Math.round(scanProgress)}%
+                        </span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <h3 className="text-xl font-medium text-white">
                         {scanPhase}
