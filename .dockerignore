@@ -1,62 +1,142 @@
+# Dependencies
 node_modules
+**/node_modules/**
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build artifacts
 dist
-.git
-.gitignore
-README.md
+build
+.next
+out
+*.tsbuildinfo
+
+# Environment files
 .env
+.env.*
+!.env.example
 .env.local
 .env.development
 .env.test
 .env.production
+
+# Logs
+logs
+*.log
+log.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
-.vscode
-.idea
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+data
+*.db
+*.db-shm
+*.db-wal
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+.nyc_output
+
+# IDE and editor files
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
 .cursor
-coverage
-.nyc_output
-.eslintcache
-*.log
-*.lock
-*.tmp
-*.tmp.*
-log.txt
+.fleet
+.sublime-workspace
+*.sublime-project
 
+# OS generated files
 .DS_Store
-node_modules
-**/node_modules/**
-build
-data
-.env
-load-ids.txt
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-server
-tmp
-types
+# Git
 .git
 .gitignore
-dist
-service
-tests
-fixtures-pages
-fixtures-apps
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+docs/
+documentation/
+
+# Testing
+tests/
+test/
+spec/
+__tests__/
+fixtures-*
+*.test.*
+*.spec.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.tmp.*
+*.cache
+
+# Package manager files
+yarn.lock
+pnpm-lock.yaml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+.jenkins/
+
+# Other tools
+.eslintcache
+.prettier*
+.editorconfig
+.nvmrc
+.node-version
+
+# Application specific
+nuclei-templates/
+ssl/
+backup-*.tar.gz
+*.backup
 
 # Netlify
-.netlify
-packages/ml-air/lib
-packages/ml-air/bin
-packages/ml-air/project
-packages/ml-air/share
-packages/ml-air/random_forest_classification/
-packages/ml-air/__pycache__/
-packages/ml-air/app/__pycache__/
-packages/vcp-common/native-bridge/build
-packages/vcp-common/_tests_/dataset-ranking.csv
-node_modules/
-Dockerfile
-.gitignore
+.netlify/
+
+# Python (if any)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Misc
+*.tgz
+*.tar.gz
+*.zip
+.env.docker
