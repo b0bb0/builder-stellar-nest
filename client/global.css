@@ -272,6 +272,23 @@
     animation: shimmer 2s ease-in-out infinite;
   }
 
+  @keyframes lightning-bolt {
+    0%,
+    90%,
+    100% {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    95% {
+      opacity: 1;
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-lightning-bolt {
+    animation: lightning-bolt 3s ease-in-out infinite;
+  }
+
   /* 3D Robot Animations */
   @keyframes robot-float {
     0%,
