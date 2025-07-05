@@ -134,12 +134,47 @@ export default function Index() {
             />
           )}
 
-          {/* Loading Overlay */}
+          {/* Enhanced Loading Overlay */}
           {isLoading && appState === "scanner" && (
-            <div className="fixed inset-0 bg-cyber-bg-dark/50 backdrop-blur-sm flex items-center justify-center z-40">
-              <div className="text-center space-y-4">
-                <div className="animate-spin w-8 h-8 border-2 border-cyber-cyan border-t-transparent rounded-full mx-auto" />
-                <p className="text-cyber-cyan">Initializing scan...</p>
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-40">
+              <div className="text-center space-y-6 p-8">
+                {/* Lightning spinner */}
+                <div className="relative">
+                  <div className="w-16 h-16 mx-auto">
+                    <div className="absolute inset-0 rounded-full border-4 border-blue-500/30"></div>
+                    <div
+                      className="absolute inset-0 rounded-full border-t-4 border-cyan-400 animate-spin"
+                      style={{ animationDuration: "1s" }}
+                    ></div>
+                    <div
+                      className="absolute inset-2 rounded-full border-t-2 border-blue-300 animate-spin"
+                      style={{
+                        animationDuration: "1.5s",
+                        animationDirection: "reverse",
+                      }}
+                    ></div>
+                  </div>
+                  <div className="absolute inset-0 rounded-full bg-blue-400/20 blur-xl animate-pulse"></div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-cyan-300 text-lg font-medium">
+                    Initializing Vulnerability Scan
+                  </p>
+                  <p className="text-blue-400/80 text-sm">
+                    Preparing advanced threat detection algorithms...
+                  </p>
+                </div>
+
+                {/* Lightning loading bar */}
+                <div className="w-64 mx-auto">
+                  <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 rounded-full animate-pulse"
+                      style={{ animation: "shimmer 2s ease-in-out infinite" }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
