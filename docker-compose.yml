@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  luminous-flow-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: luminous-flow-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8081:8081" # WebSocket port
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DATABASE_URL=/app/data/development.db
+      - NUCLEI_PATH=/usr/local/bin/nuclei
+      - NUCLEI_TEMPLATES_PATH=/app/nuclei-templates
+      - NUCLEI_TIMEOUT=300
+      - NUCLEI_RATE_LIMIT=150
+      - NUCLEI_MAX_CONCURRENT=15
+      - MAX_CONCURRENT_SCANS=3
+      - WS_ENABLED=true
+      - WS_PORT=8081
+      - LOG_LEVEL=debug
+      - AI_ENABLED=false # Disabled by default for dev
+    volumes:
+      - .:/app
+      - /app/node_modules # Anonymous volume for node_modules
+      - scanner_data_dev:/app/data
+      - scanner_logs_dev:/app/logs
+      - nuclei_templates_dev:/app/nuclei-templates
+    networks:
+      - scanner_network_dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    stdin_open: true
+    tty: true
+
+  # Database admin tool (optional)
+  sqlite-web:
+    image: coleifer/sqlite-web
+    container_name: luminous-flow-db-admin
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    volumes:
+      - scanner_data_dev:/data
+    environment:
+      - SQLITE_DATABASE=/data/development.db
+    depends_on:
+      - luminous-flow-dev
+    networks:
+      - scanner_network_dev
+    profiles:
+      - tools
+
+volumes:
+  scanner_data_dev:
+    driver: local
+  scanner_logs_dev:
+    driver: local
+  nuclei_templates_dev:
+    driver: local
+
+networks:
+  scanner_network_dev:
+    driver: bridge
