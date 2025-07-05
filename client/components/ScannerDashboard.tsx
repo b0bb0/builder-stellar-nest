@@ -199,42 +199,62 @@ export default function ScannerDashboard({
                       </div>
                     </div>
 
-                    {/* Blue Luminescent Loading Bar */}
+                    {/* Lightning Blue Loading Bar */}
                     <div className="w-full max-w-xs mx-auto">
-                      <div className="relative h-2 bg-slate-800/50 rounded-full overflow-hidden border border-slate-700/50">
-                        {/* Background glow */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-400/30 to-blue-500/20 animate-pulse"></div>
+                      <div className="relative h-3 bg-slate-900/80 rounded-full overflow-hidden border border-blue-400/30 shadow-lg">
+                        {/* Background lightning glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-cyan-300/50 to-blue-400/30 animate-pulse"></div>
 
-                        {/* Main progress bar */}
+                        {/* Main lightning progress bar */}
                         <div
-                          className="relative h-full bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 rounded-full transition-all duration-300 ease-out"
+                          className="relative h-full bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300 rounded-full transition-all duration-100 ease-linear"
                           style={{
                             width: `${scanProgress}%`,
                             boxShadow:
-                              "0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(6, 182, 212, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3)",
+                              "0 0 30px rgba(0, 191, 255, 1), 0 0 60px rgba(0, 255, 255, 0.8), 0 0 100px rgba(0, 191, 255, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.5)",
+                            filter: "brightness(1.5) saturate(1.3)",
                           }}
                         >
-                          {/* Shimmer effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer rounded-full"></div>
+                          {/* Multiple shimmer layers for lightning effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer rounded-full"></div>
+                          <div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-100/40 to-transparent animate-shimmer rounded-full"
+                            style={{ animationDelay: "0.5s" }}
+                          ></div>
+
+                          {/* Lightning bolt effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent rounded-full animate-lightning-bolt"></div>
                         </div>
 
-                        {/* Edge glow effects */}
+                        {/* Enhanced edge glow effects */}
                         <div
-                          className="absolute top-0 h-full w-8 bg-gradient-to-r from-transparent to-blue-400/50 rounded-r-full transition-all duration-300"
+                          className="absolute top-0 h-full w-12 bg-gradient-to-r from-transparent via-cyan-200/70 to-blue-300/80 rounded-r-full transition-all duration-100"
                           style={{
-                            left: `${Math.max(0, scanProgress - 8)}%`,
-                            opacity: scanProgress > 5 ? 1 : 0,
+                            left: `${Math.max(0, scanProgress - 10)}%`,
+                            opacity: scanProgress > 3 ? 1 : 0,
+                            boxShadow: "0 0 20px rgba(0, 255, 255, 0.8)",
                           }}
+                        ></div>
+
+                        {/* Pulsing outer ring */}
+                        <div
+                          className="absolute -inset-1 rounded-full border border-cyan-300/50 animate-pulse"
+                          style={{ animationDuration: "1s" }}
                         ></div>
                       </div>
 
-                      {/* Progress indicators */}
-                      <div className="flex justify-between text-xs text-blue-300/70 mt-2">
-                        <span>0%</span>
-                        <span className="text-cyan-300 font-medium">
+                      {/* Enhanced progress indicators */}
+                      <div className="flex justify-between text-xs text-cyan-200 mt-2 font-medium">
+                        <span className="text-blue-300">0%</span>
+                        <span
+                          className="text-cyan-100 font-bold text-sm drop-shadow-lg"
+                          style={{
+                            textShadow: "0 0 10px rgba(0, 255, 255, 0.8)",
+                          }}
+                        >
                           {Math.round(scanProgress)}%
                         </span>
-                        <span>100%</span>
+                        <span className="text-blue-300">100%</span>
                       </div>
                     </div>
 
