@@ -14,14 +14,7 @@ import {
   Cpu,
   Network,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+// Removed Recharts imports to eliminate defaultProps warnings
 
 // Types for our data structures
 interface ScanConfig {
