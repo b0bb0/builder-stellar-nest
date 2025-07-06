@@ -65,30 +65,54 @@ export default function CyberRobot({
                   "inset 0 0 30px rgba(0,255,255,0.3), 0 0 20px rgba(0,0,0,0.9)",
               }}
             >
-              {/* Glowing Cyan Eyes - Large and prominent */}
+              {/* Happy Glowing Cyan Eyes - Large and cheerful */}
               <div
-                className="absolute top-5 left-4 w-4 h-4 rounded-full bg-cyber-cyan"
+                className="absolute top-4 left-4 w-4 h-5 overflow-hidden"
                 style={{
-                  boxShadow:
-                    "0 0 15px rgba(0,255,255,1), inset 0 0 8px rgba(0,255,255,0.5)",
                   animation: "eye-glow 2s ease-in-out infinite",
                 }}
-              />
+              >
+                {/* Happy squinted eye shape */}
+                <div
+                  className="w-4 h-4 rounded-full bg-cyber-cyan transform translate-y-1"
+                  style={{
+                    boxShadow:
+                      "0 0 15px rgba(0,255,255,1), inset 0 0 8px rgba(0,255,255,0.5)",
+                  }}
+                />
+              </div>
               <div
-                className="absolute top-5 right-4 w-4 h-4 rounded-full bg-cyber-cyan"
+                className="absolute top-4 right-4 w-4 h-5 overflow-hidden"
                 style={{
-                  boxShadow:
-                    "0 0 15px rgba(0,255,255,1), inset 0 0 8px rgba(0,255,255,0.5)",
                   animation: "eye-glow 2s ease-in-out infinite",
                   animationDelay: "0.1s",
                 }}
+              >
+                {/* Happy squinted eye shape */}
+                <div
+                  className="w-4 h-4 rounded-full bg-cyber-cyan transform translate-y-1"
+                  style={{
+                    boxShadow:
+                      "0 0 15px rgba(0,255,255,1), inset 0 0 8px rgba(0,255,255,0.5)",
+                  }}
+                />
+              </div>
+
+              {/* Happy Smile */}
+              <div
+                className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 border-b-2 border-cyber-cyan rounded-b-full"
+                style={{
+                  boxShadow: "0 0 8px rgba(0,255,255,0.6)",
+                  borderBottomWidth: "2px",
+                }}
               />
 
-              {/* Subtle mouth line */}
+              {/* Smile glow effect */}
               <div
-                className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-0.5 rounded bg-cyber-cyan/30"
+                className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-4 border-b border-cyber-cyan/40 rounded-b-full"
                 style={{
-                  boxShadow: "0 0 4px rgba(0,255,255,0.3)",
+                  boxShadow: "0 0 12px rgba(0,255,255,0.4)",
+                  borderBottomWidth: "1px",
                 }}
               />
             </div>
