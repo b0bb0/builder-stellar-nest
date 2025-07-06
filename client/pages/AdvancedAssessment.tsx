@@ -442,27 +442,59 @@ const AdvancedAssessmentPlatform: React.FC = () => {
               </h3>
 
               <div className="h-40 mb-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={mockStats}
-                    margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-                  >
-                    <XAxis
-                      dataKey="name"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: "#9ca3af" }}
-                      type="category"
-                      interval={0}
-                    />
-                    <YAxis hide={true} type="number" domain={[0, "dataMax"]} />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]} fill="#8884d8">
-                      {mockStats.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                {/* Custom Animated Bar Chart */}
+                <div className="flex items-end justify-between gap-3 h-32 px-4">
+                  {mockStats.map((stat, index) => {
+                    const maxCount = Math.max(...mockStats.map((s) => s.count));
+                    const height = (stat.count / maxCount) * 100;
+
+                    return (
+                      <div
+                        key={stat.name}
+                        className="flex flex-col items-center flex-1"
+                      >
+                        {/* Bar */}
+                        <motion.div
+                          className="w-full rounded-t-md relative overflow-hidden"
+                          style={{
+                            backgroundColor: stat.color,
+                            boxShadow: `0 0 10px ${stat.color}40`,
+                          }}
+                          initial={{ height: 0 }}
+                          animate={{ height: `${height}%` }}
+                          transition={{
+                            duration: 1,
+                            delay: index * 0.1,
+                            ease: "easeOut",
+                          }}
+                        >
+                          {/* Shimmer effect */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            animate={{
+                              x: ["-100%", "100%"],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                            }}
+                          />
+
+                          {/* Count display */}
+                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-bold text-white">
+                            {stat.count}
+                          </div>
+                        </motion.div>
+
+                        {/* Label */}
+                        <div className="mt-2 text-xs text-gray-400 font-medium">
+                          {stat.name}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="text-center">
