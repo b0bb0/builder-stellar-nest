@@ -8,6 +8,8 @@ services:
       target: development
     container_name: luminous-flow-dev
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "8080:8080"
       - "8081:8081" # WebSocket port
@@ -28,6 +30,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules # Anonymous volume for node_modules
+      - /app/dist # Prevent overwriting built files
       - scanner_data_dev:/app/data
       - scanner_logs_dev:/app/logs
       - nuclei_templates_dev:/app/nuclei-templates
