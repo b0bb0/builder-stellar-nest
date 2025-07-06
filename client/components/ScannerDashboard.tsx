@@ -129,7 +129,20 @@ export default function ScannerDashboard({
             <div className="text-center mb-16">
               <SectionLabel>SECURITY PLATFORM</SectionLabel>
               <MainHeading className="mb-6">
-                Advanced <Accent>Vulnerability Assessment</Accent> Platform
+                Advanced{" "}
+                <span
+                  className="font-black"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, #60a5fa 0%, #3b82f6 25%, #8b5cf6 60%, #d946ef 85%, #ec4899 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Vulnerability Assessment
+                </span>{" "}
+                Platform
               </MainHeading>
               <SubHeading className="max-w-3xl mx-auto mb-8">
                 AI-powered LLM trained models for comprehensive security
