@@ -128,19 +128,27 @@ export default function ScannerDashboard({
             {/* Floating Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center hover:border-cyan-500/30 transition-colors">
-                <div className="text-2xl font-bold text-cyan-400 mb-1">247K</div>
+                <div className="text-2xl font-bold text-cyan-400 mb-1">
+                  247K
+                </div>
                 <div className="text-xs text-gray-400">Threats Detected</div>
               </div>
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center hover:border-green-500/30 transition-colors">
-                <div className="text-2xl font-bold text-green-400 mb-1">99.8%</div>
+                <div className="text-2xl font-bold text-green-400 mb-1">
+                  99.8%
+                </div>
                 <div className="text-xs text-gray-400">AI Accuracy</div>
               </div>
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center hover:border-purple-500/30 transition-colors">
-                <div className="text-2xl font-bold text-purple-400 mb-1">1.2M</div>
+                <div className="text-2xl font-bold text-purple-400 mb-1">
+                  1.2M
+                </div>
                 <div className="text-xs text-gray-400">Scans Completed</div>
               </div>
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center hover:border-orange-500/30 transition-colors">
-                <div className="text-2xl font-bold text-orange-400 mb-1">&lt;30s</div>
+                <div className="text-2xl font-bold text-orange-400 mb-1">
+                  &lt;30s
+                </div>
                 <div className="text-xs text-gray-400">Avg Response</div>
               </div>
             </div>
@@ -166,20 +174,26 @@ export default function ScannerDashboard({
                 </span>
               </MainHeading>
               <SubHeading className="max-w-3xl mx-auto mb-8 text-lg">
-                Next-generation security analysis powered by advanced machine learning models
+                Next-generation security analysis powered by advanced machine
+                learning models
               </SubHeading>
               <div className="flex justify-center gap-4 flex-wrap mb-8">
                 <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full backdrop-blur-sm hover:bg-blue-500/20 transition-colors">
-                  <span className="text-blue-300 text-sm font-medium">🤖 AI-Driven Analysis</span>
+                  <span className="text-blue-300 text-sm font-medium">
+                    🤖 AI-Driven Analysis
+                  </span>
                 </div>
                 <div className="px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full backdrop-blur-sm hover:bg-purple-500/20 transition-colors">
-                  <span className="text-purple-300 text-sm font-medium">⚡ Real-time Detection</span>
+                  <span className="text-purple-300 text-sm font-medium">
+                    ⚡ Real-time Detection
+                  </span>
                 </div>
                 <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full backdrop-blur-sm hover:bg-green-500/20 transition-colors">
-                  <span className="text-green-300 text-sm font-medium">🛡️ Enterprise Security</span>
+                  <span className="text-green-300 text-sm font-medium">
+                    🛡️ Enterprise Security
+                  </span>
                 </div>
               </div>
-              </SubHeading>
             </div>
 
             {/* Main Interface */}
