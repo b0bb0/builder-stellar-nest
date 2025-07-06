@@ -40,7 +40,7 @@ check_docker() {
 # Function to setup environment
 setup_env() {
     print_info "Setting up Docker environment..."
-    
+
     # Create .env file if it doesn't exist
     if [ ! -f .env ]; then
         if [ -f .env.example ]; then
@@ -50,7 +50,7 @@ setup_env() {
             print_warning ".env.example not found. Please create .env manually."
         fi
     fi
-    
+
     # Load Docker-specific environment
     if [ -f .env.docker ]; then
         set -a
@@ -65,7 +65,7 @@ build() {
     print_info "Building Docker containers..."
     check_docker
     setup_env
-    
+
     docker-compose build --no-cache
     print_success "Containers built successfully"
 }
@@ -75,19 +75,19 @@ dev() {
     print_info "Starting development environment..."
     check_docker
     setup_env
-    
+
     # Build if images don't exist
     if ! docker-compose images -q luminous-flow-dev | grep -q .; then
         print_info "Images not found. Building..."
         docker-compose build
     fi
-    
+
     docker-compose up -d
     print_success "Development environment started"
     print_info "Application available at: http://localhost:8080"
     print_info "WebSocket available at: ws://localhost:8081"
     print_info "Database admin (if enabled): http://localhost:8082"
-    
+
     # Follow logs
     print_info "Following logs (Ctrl+C to stop watching)..."
     docker-compose logs -f luminous-flow-dev
@@ -125,7 +125,7 @@ clean() {
     print_warning "This will remove all containers, images, and volumes for this project"
     read -p "Are you sure? (y/N): " -n 1 -r
     echo
-    
+
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_info "Cleaning up Docker resources..."
         docker-compose down -v --rmi all
@@ -138,52 +138,63 @@ clean() {
 
 # Function to show container status
 status() {
-    print_info "Container status:"
-    docker-compose ps
-    
-    print_info "\nContainer resource usage:"
-    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+    print_info "Running comprehensive status check..."
+
+    # Check if status dashboard exists and use it
+    if [ -f ./docker-status.sh ]; then
+        bash ./docker-status.sh
+    else
+        # Fallback to basic status
+        print_info "Container status:"
+        docker-compose ps
+
+        print_info "\nContainer resource usage:"
+        docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}" 2>/dev/null || echo "Unable to get stats"
+
+        print_info "\nQuick health check:"
+        curl -f http://localhost:8080/api/health >/dev/null 2>&1 && echo "✅ Application healthy" || echo "❌ Application not responding"
+    fi
 }
 
 # Function to backup data
 backup() {
     local backup_file="backup-$(date +%Y%m%d-%H%M%S).tar.gz"
     print_info "Creating backup: $backup_file"
-    
+
     docker run --rm \
         -v scanner_data_dev:/data \
         -v $(pwd):/backup \
         alpine tar czf /backup/$backup_file -C /data .
-    
+
     print_success "Backup created: $backup_file"
 }
 
 # Function to restore data
 restore() {
     local backup_file="$1"
-    
+
     if [ -z "$backup_file" ]; then
         print_error "Please specify a backup file to restore"
         exit 1
     fi
-    
+
     if [ ! -f "$backup_file" ]; then
         print_error "Backup file not found: $backup_file"
         exit 1
     fi
-    
+
     print_warning "This will replace all current data"
     read -p "Are you sure? (y/N): " -n 1 -r
     echo
-    
+
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_info "Restoring from backup: $backup_file"
-        
+
         docker run --rm \
             -v scanner_data_dev:/data \
             -v $(pwd):/backup \
             alpine sh -c "rm -rf /data/* && tar xzf /backup/$backup_file -C /data"
-        
+
         print_success "Backup restored successfully"
         print_info "Restart containers to apply changes"
     else
