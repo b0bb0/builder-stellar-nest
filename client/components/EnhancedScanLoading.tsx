@@ -36,7 +36,7 @@ const scanPhases: ScanPhase[] = [
     id: "init",
     name: "Initializing Scanner",
     icon: Cpu,
-    duration: 800,
+    duration: 3000,
     description: "Preparing advanced threat detection algorithms",
     color: "#06b6d4",
     glowColor: "rgba(6, 182, 212, 0.5)",
@@ -45,7 +45,7 @@ const scanPhases: ScanPhase[] = [
     id: "recon",
     name: "Target Reconnaissance",
     icon: Eye,
-    duration: 1200,
+    duration: 4000,
     description: "Gathering target information and fingerprinting",
     color: "#8b5cf6",
     glowColor: "rgba(139, 92, 246, 0.5)",
@@ -54,7 +54,7 @@ const scanPhases: ScanPhase[] = [
     id: "discovery",
     name: "Network Discovery",
     icon: Network,
-    duration: 1500,
+    duration: 5000,
     description: "Scanning ports and identifying services",
     color: "#ec4899",
     glowColor: "rgba(236, 72, 153, 0.5)",
@@ -63,7 +63,7 @@ const scanPhases: ScanPhase[] = [
     id: "analysis",
     name: "Vulnerability Analysis",
     icon: Shield,
-    duration: 2000,
+    duration: 6000,
     description: "Deep scanning for security vulnerabilities",
     color: "#f59e0b",
     glowColor: "rgba(245, 158, 11, 0.5)",
@@ -72,7 +72,7 @@ const scanPhases: ScanPhase[] = [
     id: "exploitation",
     name: "Exploit Detection",
     icon: AlertTriangle,
-    duration: 1800,
+    duration: 5000,
     description: "Testing for exploitable vulnerabilities",
     color: "#ef4444",
     glowColor: "rgba(239, 68, 68, 0.5)",
@@ -81,7 +81,7 @@ const scanPhases: ScanPhase[] = [
     id: "completion",
     name: "Finalizing Results",
     icon: CheckCircle,
-    duration: 700,
+    duration: 2000,
     description: "Compiling comprehensive security report",
     color: "#10b981",
     glowColor: "rgba(16, 185, 129, 0.5)",
@@ -117,17 +117,15 @@ export default function EnhancedScanLoading({
       // Update elapsed time
       setElapsedTime(Math.floor(totalElapsed / 1000));
 
-      // Update progress
-      const overallProgress = Math.min(
-        (totalElapsed / totalDuration) * 100,
-        100,
-      );
+      // Update progress - ensure smooth progression to 100%
+      const rawProgress = (totalElapsed / totalDuration) * 100;
+      const overallProgress = Math.min(rawProgress, 100);
       setProgress(overallProgress);
 
       // Simulate vulnerabilities being found
       const vulnCount =
-        Math.floor((overallProgress / 100) * 12) +
-        Math.floor(Math.random() * 3);
+        Math.floor((overallProgress / 100) * 15) +
+        Math.floor(Math.random() * 2);
       setVulnerabilitiesFound(vulnCount);
 
       // Update active scans
@@ -145,14 +143,26 @@ export default function EnhancedScanLoading({
           setCurrentPhaseIndex(currentPhase);
           phaseStartTime = now;
         } else {
-          // Scan complete
-          clearInterval(interval);
-          setTimeout(() => {
-            onScanComplete();
-          }, 1000);
+          // Ensure we reach exactly 100% before completing
+          if (overallProgress >= 99.5) {
+            setProgress(100);
+            clearInterval(interval);
+            setTimeout(() => {
+              onScanComplete();
+            }, 1500);
+          }
         }
       }
-    }, 100);
+
+      // Force completion if we've exceeded total duration
+      if (totalElapsed >= totalDuration) {
+        setProgress(100);
+        clearInterval(interval);
+        setTimeout(() => {
+          onScanComplete();
+        }, 1500);
+      }
+    }, 150);
 
     return () => clearInterval(interval);
   }, [onScanComplete, totalDuration]);
