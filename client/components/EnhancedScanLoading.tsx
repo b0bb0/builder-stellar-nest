@@ -13,6 +13,7 @@ import {
   Cpu,
   Network,
   Eye,
+  Clock,
 } from "lucide-react";
 
 interface EnhancedScanLoadingProps {
