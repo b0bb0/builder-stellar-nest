@@ -128,8 +128,8 @@ export default function ScannerDashboard({
             {/* Header Section */}
             <div className="text-center mb-16">
               <SectionLabel>SECURITY PLATFORM</SectionLabel>
-              <MainHeading className="mb-6">
-                Advanced{" "}
+              <MainHeading className="mb-6 font-black">
+                <span className="font-black">Advanced</span>{" "}
                 <span
                   className="font-black"
                   style={{
@@ -142,7 +142,7 @@ export default function ScannerDashboard({
                 >
                   Vulnerability Assessment
                 </span>{" "}
-                Platform
+                <span className="font-black">Platform</span>
               </MainHeading>
               <SubHeading className="max-w-3xl mx-auto mb-8">
                 AI-powered LLM trained models for comprehensive security
