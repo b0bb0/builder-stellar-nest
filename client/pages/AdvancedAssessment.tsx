@@ -450,15 +450,20 @@ const AdvancedAssessmentPlatform: React.FC = () => {
 
               <div className="h-40 mb-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={mockStats}>
+                  <BarChart
+                    data={mockStats}
+                    margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                  >
                     <XAxis
                       dataKey="name"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: "#9ca3af" }}
+                      type="category"
+                      interval={0}
                     />
-                    <YAxis hide />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    <YAxis hide={true} type="number" domain={[0, "dataMax"]} />
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]} fill="#8884d8">
                       {mockStats.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
