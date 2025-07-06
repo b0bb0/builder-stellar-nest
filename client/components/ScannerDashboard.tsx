@@ -129,12 +129,11 @@ export default function ScannerDashboard({
             <div className="text-center mb-16">
               <SectionLabel>SECURITY PLATFORM</SectionLabel>
               <MainHeading className="mb-6">
-                Advanced <Accent>Vulnerability</Accent>
-                <br />
-                <Accent>Assessment</Accent> Platform
+                Advanced <Accent>Vulnerability Assessment</Accent> Platform
               </MainHeading>
               <SubHeading className="max-w-3xl mx-auto mb-8">
-                AI powered LLM Trained models
+                AI-powered LLM trained models for comprehensive security
+                analysis
               </SubHeading>
             </div>
 
