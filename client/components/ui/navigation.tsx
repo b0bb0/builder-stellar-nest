@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Shield, Zap } from "lucide-react";
+import { Home, Shield, Zap, Activity } from "lucide-react";
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
@@ -18,6 +18,12 @@ export const Navigation: React.FC = () => {
       label: "Advanced Platform",
       icon: Shield,
       description: "Advanced Vulnerability Assessment",
+    },
+    {
+      path: "/dashboard",
+      label: "Security Center",
+      icon: Activity,
+      description: "AI-Powered Vulnerability Management",
     },
   ];
 
