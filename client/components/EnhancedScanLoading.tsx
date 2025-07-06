@@ -105,11 +105,14 @@ export default function EnhancedScanLoading({
   );
 
   useEffect(() => {
-    let startTime = Date.now();
+    const startTime = Date.now();
     let phaseStartTime = startTime;
     let currentPhase = 0;
+    let isCompleted = false;
 
     const interval = setInterval(() => {
+      if (isCompleted) return;
+
       const now = Date.now();
       const totalElapsed = now - startTime;
       const phaseElapsed = now - phaseStartTime;
@@ -129,33 +132,28 @@ export default function EnhancedScanLoading({
       setVulnerabilitiesFound(vulnCount);
 
       // Update active scans
-      setActiveScans(
-        [
-          scanPhases[currentPhase]?.name || "Scanning",
-          ...(currentPhase > 0 ? [scanPhases[currentPhase - 1]?.name] : []),
-        ].filter(Boolean),
-      );
+      const currentScanPhase = scanPhases[currentPhase];
+      if (currentScanPhase) {
+        setActiveScans(
+          [
+            currentScanPhase.name,
+            ...(currentPhase > 0 ? [scanPhases[currentPhase - 1]?.name] : []),
+          ].filter(Boolean),
+        );
+      }
 
       // Check if current phase is complete
-      if (phaseElapsed >= scanPhases[currentPhase]?.duration) {
+      if (currentScanPhase && phaseElapsed >= currentScanPhase.duration) {
         if (currentPhase < scanPhases.length - 1) {
           currentPhase++;
           setCurrentPhaseIndex(currentPhase);
           phaseStartTime = now;
-        } else {
-          // Ensure we reach exactly 100% before completing
-          if (overallProgress >= 99.5) {
-            setProgress(100);
-            clearInterval(interval);
-            setTimeout(() => {
-              onScanComplete();
-            }, 1500);
-          }
         }
       }
 
-      // Force completion if we've exceeded total duration
-      if (totalElapsed >= totalDuration) {
+      // Force completion if we've reached the end
+      if (totalElapsed >= totalDuration || overallProgress >= 100) {
+        isCompleted = true;
         setProgress(100);
         clearInterval(interval);
         setTimeout(() => {
@@ -164,8 +162,11 @@ export default function EnhancedScanLoading({
       }
     }, 150);
 
-    return () => clearInterval(interval);
-  }, [onScanComplete, totalDuration]);
+    return () => {
+      clearInterval(interval);
+      isCompleted = true;
+    };
+  }, []);
 
   const currentPhase = scanPhases[currentPhaseIndex];
 
