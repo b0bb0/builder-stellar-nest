@@ -4,6 +4,7 @@ import Scanner from "@/components/Scanner";
 import ScannerDashboard from "@/components/ScannerDashboard";
 import ScanProgress from "@/components/ScanProgress";
 import ProfessionalScanProgress from "@/components/ProfessionalScanProgress";
+import EnhancedScanLoading from "@/components/EnhancedScanLoading";
 import AIAnalysisComponent from "@/components/AIAnalysis";
 import ProfessionalScanResults from "@/components/ProfessionalScanResults";
 import ProfessionalBackground from "@/components/ui/professional-background";
@@ -121,7 +122,7 @@ export default function Index() {
           )}
 
           {appState === "scanning" && currentScanId && (
-            <ProfessionalScanProgress
+            <EnhancedScanLoading
               scanId={currentScanId}
               onScanComplete={handleScanComplete}
             />
