@@ -18,7 +18,12 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "deploy:gcp": "bash deploy-gcp.sh",
+    "docker:build": "docker build -t fusion-scanner .",
+    "docker:run": "docker run -p 8080:8080 fusion-scanner",
+    "gcp:build": "gcloud builds submit --config cloudbuild.yaml",
+    "gcp:deploy": "gcloud run services replace cloud-run-service.yaml"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
