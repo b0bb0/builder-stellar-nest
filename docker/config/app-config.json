@@ -1,0 +1,149 @@
+{
+  "app": {
+    "name": "Fusion Scanner",
+    "version": "2.0",
+    "description": "Advanced Cybersecurity Vulnerability Scanner",
+    "author": "Fusion Scanner Team",
+    "license": "MIT"
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "trustProxy": true,
+    "timeout": 300000,
+    "keepAliveTimeout": 65000,
+    "headersTimeout": 66000
+  },
+  "security": {
+    "cors": {
+      "origin": "*",
+      "credentials": true,
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allowedHeaders": ["Content-Type", "Authorization", "X-Requested-With"]
+    },
+    "rateLimit": {
+      "windowMs": 900000,
+      "max": 100,
+      "message": "Too many requests from this IP",
+      "standardHeaders": true,
+      "legacyHeaders": false
+    },
+    "helmet": {
+      "contentSecurityPolicy": false,
+      "crossOriginEmbedderPolicy": false
+    }
+  },
+  "scanner": {
+    "maxConcurrentScans": 5,
+    "defaultTimeout": 300000,
+    "retryAttempts": 3,
+    "retryDelay": 5000,
+    "allowedTargets": [
+      "https://httpbin.org",
+      "https://demo.testfire.net",
+      "https://juice-shop.herokuapp.com"
+    ],
+    "tools": {
+      "nuclei": {
+        "enabled": true,
+        "templatesPath": "/app/nuclei-templates",
+        "concurrency": 25,
+        "rateLimit": 150,
+        "timeout": 30,
+        "retries": 3
+      },
+      "basic": {
+        "enabled": true,
+        "checks": ["ssl", "headers", "redirects", "forms"]
+      },
+      "directory": {
+        "enabled": true,
+        "wordlists": ["common.txt", "directories.txt"]
+      }
+    },
+    "severity": {
+      "enabled": ["critical", "high", "medium", "low", "info"],
+      "weights": {
+        "critical": 10,
+        "high": 7,
+        "medium": 5,
+        "low": 3,
+        "info": 1
+      }
+    }
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "/app/data/scanner.db",
+    "options": {
+      "busyTimeout": 30000,
+      "journalMode": "WAL",
+      "synchronous": "NORMAL",
+      "cacheSize": 2000,
+      "mmapSize": 268435456
+    }
+  },
+  "websocket": {
+    "enabled": true,
+    "pingInterval": 30000,
+    "pingTimeout": 5000,
+    "maxConnections": 100,
+    "compression": true,
+    "perMessageDeflate": true
+  },
+  "ai": {
+    "enabled": false,
+    "provider": "openai",
+    "model": "gpt-3.5-turbo",
+    "maxTokens": 1000,
+    "temperature": 0.3,
+    "timeout": 30000
+  },
+  "logging": {
+    "level": "info",
+    "format": "combined",
+    "directory": "/app/logs",
+    "maxSize": "10m",
+    "maxFiles": 5,
+    "datePattern": "YYYY-MM-DD",
+    "zippedArchive": true
+  },
+  "features": {
+    "demoMode": true,
+    "healthCheck": true,
+    "metrics": true,
+    "swagger": true,
+    "adminPanel": false,
+    "userManagement": false,
+    "reporting": true,
+    "export": true
+  },
+  "cache": {
+    "enabled": false,
+    "type": "memory",
+    "ttl": 3600,
+    "maxSize": 100,
+    "scanResults": true,
+    "analysisResults": true
+  },
+  "notifications": {
+    "enabled": false,
+    "webhook": {
+      "enabled": false,
+      "url": "",
+      "events": ["scan_completed", "vulnerability_found"]
+    },
+    "email": {
+      "enabled": false,
+      "smtp": {
+        "host": "",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "",
+          "pass": ""
+        }
+      }
+    }
+  }
+}
