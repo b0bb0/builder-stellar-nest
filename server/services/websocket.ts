@@ -32,7 +32,7 @@ export class WebSocketService {
       return;
     }
 
-    this.wss = new WebSocket.Server({
+    this.wss = new WebSocketServer({
       server,
       path: "/ws",
       perMessageDeflate: false,
