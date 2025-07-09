@@ -5,6 +5,7 @@ interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "primary" | "secondary";
+  style?: React.CSSProperties;
 }
 
 export default function GlassCard({
