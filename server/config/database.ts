@@ -187,10 +187,13 @@ function initializeQueries() {
 // Getter functions to safely access queries
 export const scanQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_scanQueries) {
       console.error(
         "Database access attempted before initialization for scanQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
