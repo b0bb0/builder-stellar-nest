@@ -1,4 +1,4 @@
-import WebSocket from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import { Server } from "http";
 import { v4 as uuidv4 } from "uuid";
 
