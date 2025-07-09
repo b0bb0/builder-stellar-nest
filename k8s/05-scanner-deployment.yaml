@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vulnerability-scanner
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: scanner
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: vulnerability-scanner
+  template:
+    metadata:
+      labels:
+        app: vulnerability-scanner
+        component: scanner
+    spec:
+      serviceAccountName: vulnerability-scanner
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+        - name: vulnerability-scanner
+          image: vulnerability-scanner:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8081
+              name: websocket
+              protocol: TCP
+          env:
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vulnerability-scanner-secrets
+                  key: session-secret
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vulnerability-scanner-secrets
+                  key: jwt-secret
+          envFrom:
+            - configMapRef:
+                name: vulnerability-scanner-config
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+            - name: logs-volume
+              mountPath: /app/logs
+            - name: reports-volume
+              mountPath: /app/reports
+            - name: nuclei-templates
+              mountPath: /app/nuclei-templates
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 4Gi
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-data
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-logs
+        - name: reports-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-reports
+        - name: nuclei-templates
+          persistentVolumeClaim:
+            claimName: nuclei-templates
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vulnerability-scanner
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: rbac
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vulnerability-scanner
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: rbac
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vulnerability-scanner
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: rbac
+subjects:
+  - kind: ServiceAccount
+    name: vulnerability-scanner
+    namespace: vulnerability-scanner
+roleRef:
+  kind: Role
+  name: vulnerability-scanner
+  apiGroup: rbac.authorization.k8s.io

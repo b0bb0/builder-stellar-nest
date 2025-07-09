@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vulnerability-scanner
+  labels:
+    name: vulnerability-scanner
+    app.kubernetes.io/name: vulnerability-assessment-platform
+    app.kubernetes.io/component: security
+    app.kubernetes.io/version: "1.0.0"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: vulnerability-scanner-quota
+  namespace: vulnerability-scanner
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "10"
+    services: "10"
+    secrets: "10"
+    configmaps: "10"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: vulnerability-scanner-limits
+  namespace: vulnerability-scanner
+spec:
+  limits:
+    - default:
+        cpu: "1"
+        memory: "2Gi"
+      defaultRequest:
+        cpu: "250m"
+        memory: "512Mi"
+      type: Container

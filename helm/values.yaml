@@ -1,0 +1,171 @@
+# Default values for vulnerability-scanner
+# This is a YAML-formatted file.
+
+replicaCount: 2
+
+image:
+  repository: vulnerability-scanner
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 8080
+  wsPort: 8081
+  nodePort: 30080
+  wsNodePort: 30081
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/websocket-services: "vulnerability-scanner-service"
+  hosts:
+    - host: vulnerability-scanner.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  accessMode: ReadWriteOnce
+  size:
+    data: 10Gi
+    logs: 5Gi
+    reports: 20Gi
+    nucleiTemplates: 2Gi
+    backups: 50Gi
+
+# Application configuration
+config:
+  nodeEnv: production
+  logLevel: info
+  maxConcurrentScans: 5
+  nucleiTimeout: 600
+  nucleiRateLimit: 150
+  aiEnabled: true
+  wsEnabled: true
+  metricsEnabled: true
+  backupEnabled: true
+  reportExportEnabled: true
+
+# Security secrets (base64 encoded)
+secrets:
+  sessionSecret: "eW91ci1zZWN1cmUtc2Vzc2lvbi1zZWNyZXQtY2hhbmdlLWluLXByb2R1Y3Rpb24="
+  jwtSecret: "eW91ci1zZWN1cmUtand0LXNlY3JldC1jaGFuZ2UtaW4tcHJvZHVjdGlvbg=="
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+  replica:
+    replicaCount: 1
+
+# PostgreSQL configuration (optional)
+postgresql:
+  enabled: false
+  auth:
+    postgresPassword: "changeme"
+    database: "vulnerability_scanner"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+  grafana:
+    enabled: true
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 1 * * *"
+  retention: 7
+
+# Network policies
+networkPolicy:
+  enabled: false
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Resource quotas
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+
+# Cleanup jobs
+cleanup:
+  enabled: true
+  schedule: "0 2 * * *"
+  reports:
+    retentionDays: 90
+  logs:
+    retentionDays: 30

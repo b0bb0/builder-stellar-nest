@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: vulnerability-scanner-prod
+
+resources:
+  - ../../base
+
+namePrefix: prod-
+
+commonLabels:
+  environment: production
+  tier: production
+
+images:
+  - name: vulnerability-scanner
+    newTag: v1.0.0
+
+replicas:
+  - name: vulnerability-scanner
+    count: 5
+
+patchesStrategicMerge:
+  - deployment-patch.yaml
+  - service-patch.yaml
+  - ingress-patch.yaml
+
+configMapGenerator:
+  - name: prod-config
+    literals:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - MAX_CONCURRENT_SCANS=10
+      - AI_ENABLED=true
+      - METRICS_ENABLED=true
+    behavior: merge
+
+secretGenerator:
+  - name: prod-secrets
+    files:
+      - session-secret=session.key
+      - jwt-secret=jwt.key
+    behavior: replace

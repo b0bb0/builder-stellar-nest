@@ -1,0 +1,209 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vulnerability-scanner-backup
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: backup
+spec:
+  schedule: "0 1 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: vulnerability-scanner-backup
+            component: backup
+        spec:
+          containers:
+            - name: backup
+              image: alpine:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting backup process..."
+                  BACKUP_DATE=$(date +%Y%m%d-%H%M%S)
+                  BACKUP_DIR="/backups/vulnerability-scanner-$BACKUP_DATE"
+
+                  # Install required tools
+                  apk add --no-cache sqlite tar gzip
+
+                  # Create backup directory
+                  mkdir -p "$BACKUP_DIR"
+
+                  # Backup database
+                  if [ -f /app/data/production.db ]; then
+                    echo "Backing up database..."
+                    sqlite3 /app/data/production.db ".backup $BACKUP_DIR/production.db"
+                  fi
+
+                  # Backup configuration and logs
+                  echo "Backing up logs and reports..."
+                  tar -czf "$BACKUP_DIR/logs.tar.gz" -C /app/logs . 2>/dev/null || echo "No logs to backup"
+                  tar -czf "$BACKUP_DIR/reports.tar.gz" -C /app/reports . 2>/dev/null || echo "No reports to backup"
+
+                  # Create backup manifest
+                  cat > "$BACKUP_DIR/manifest.txt" << EOF
+                  Backup Date: $BACKUP_DATE
+                  Database: $(du -h $BACKUP_DIR/production.db 2>/dev/null || echo "N/A")
+                  Logs: $(du -h $BACKUP_DIR/logs.tar.gz 2>/dev/null || echo "N/A")
+                  Reports: $(du -h $BACKUP_DIR/reports.tar.gz 2>/dev/null || echo "N/A")
+                  EOF
+
+                  # Cleanup old backups (keep last 7 days)
+                  echo "Cleaning up old backups..."
+                  find /backups -type d -name "vulnerability-scanner-*" -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+
+                  echo "Backup completed: $BACKUP_DIR"
+                  ls -la "$BACKUP_DIR"
+              volumeMounts:
+                - name: data-volume
+                  mountPath: /app/data
+                  readOnly: true
+                - name: logs-volume
+                  mountPath: /app/logs
+                  readOnly: true
+                - name: reports-volume
+                  mountPath: /app/reports
+                  readOnly: true
+                - name: backup-volume
+                  mountPath: /backups
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+          volumes:
+            - name: data-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-data
+            - name: logs-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-logs
+            - name: reports-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-reports
+            - name: backup-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-backups
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vulnerability-scanner-backups
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vulnerability-scanner-restore
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: restore
+spec:
+  template:
+    metadata:
+      labels:
+        app: vulnerability-scanner-restore
+        component: restore
+    spec:
+      containers:
+        - name: restore
+          image: alpine:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Restore job ready. To restore from backup:"
+              echo "1. List available backups: ls -la /backups/"
+              echo "2. Set BACKUP_TO_RESTORE environment variable"
+              echo "3. Run restore commands manually"
+
+              if [ -n "$BACKUP_TO_RESTORE" ]; then
+                echo "Restoring from backup: $BACKUP_TO_RESTORE"
+                BACKUP_DIR="/backups/$BACKUP_TO_RESTORE"
+                
+                if [ -d "$BACKUP_DIR" ]; then
+                  # Install required tools
+                  apk add --no-cache sqlite tar gzip
+                  
+                  # Restore database
+                  if [ -f "$BACKUP_DIR/production.db" ]; then
+                    echo "Restoring database..."
+                    cp "$BACKUP_DIR/production.db" /app/data/production.db
+                  fi
+                  
+                  # Restore logs
+                  if [ -f "$BACKUP_DIR/logs.tar.gz" ]; then
+                    echo "Restoring logs..."
+                    tar -xzf "$BACKUP_DIR/logs.tar.gz" -C /app/logs/
+                  fi
+                  
+                  # Restore reports
+                  if [ -f "$BACKUP_DIR/reports.tar.gz" ]; then
+                    echo "Restoring reports..."
+                    tar -xzf "$BACKUP_DIR/reports.tar.gz" -C /app/reports/
+                  fi
+                  
+                  echo "Restore completed from: $BACKUP_TO_RESTORE"
+                else
+                  echo "Backup directory not found: $BACKUP_DIR"
+                  exit 1
+                fi
+              else
+                echo "Sleeping for manual restore operations..."
+                sleep 3600
+              fi
+          env:
+            - name: BACKUP_TO_RESTORE
+              value: ""
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+            - name: logs-volume
+              mountPath: /app/logs
+            - name: reports-volume
+              mountPath: /app/reports
+            - name: backup-volume
+              mountPath: /backups
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-data
+        - name: logs-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-logs
+        - name: reports-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-reports
+        - name: backup-volume
+          persistentVolumeClaim:
+            claimName: vulnerability-scanner-backups
+      restartPolicy: Never
+  backoffLimit: 3

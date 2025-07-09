@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vulnerability-scanner-data
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vulnerability-scanner-logs
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vulnerability-scanner-reports
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nuclei-templates
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner-redis
+    component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 2Gi

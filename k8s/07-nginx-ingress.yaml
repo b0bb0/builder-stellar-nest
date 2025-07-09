@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ingress
+  namespace: vulnerability-scanner
+  labels:
+    app: nginx-ingress
+    component: ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-ingress
+  template:
+    metadata:
+      labels:
+        app: nginx-ingress
+        component: ingress
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress-service
+  namespace: vulnerability-scanner
+  labels:
+    app: nginx-ingress
+    component: ingress
+spec:
+  selector:
+    app: nginx-ingress
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress-nodeport
+  namespace: vulnerability-scanner
+  labels:
+    app: nginx-ingress
+    component: ingress
+spec:
+  selector:
+    app: nginx-ingress
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vulnerability-scanner-ingress
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/websocket-services: "vulnerability-scanner-service"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: vulnerability-scanner.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vulnerability-scanner-service
+                port:
+                  number: 8080
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: vulnerability-scanner-service
+                port:
+                  number: 8081
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vulnerability-scanner-service
+                port:
+                  number: 8080

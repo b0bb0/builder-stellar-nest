@@ -1,0 +1,170 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vulnerability-scanner-metrics
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    app: vulnerability-scanner
+  ports:
+    - name: metrics
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: vulnerability-scanner-monitor
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: vulnerability-scanner
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: monitoring
+    grafana_dashboard: "1"
+data:
+  vulnerability-scanner-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Vulnerability Scanner Dashboard",
+        "tags": ["vulnerability", "security", "scanner"],
+        "style": "dark",
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Active Scans",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(vulnerability_scanner_active_scans)",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Vulnerabilities Found",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(vulnerability_scanner_vulnerabilities_total)",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "CPU Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_cpu_usage_seconds_total{pod=~\"vulnerability-scanner-.*\"}[5m])",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "container_memory_usage_bytes{pod=~\"vulnerability-scanner-.*\"}",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "10s"
+      }
+    }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vulnerability-scanner-cleanup
+  namespace: vulnerability-scanner
+  labels:
+    app: vulnerability-scanner
+    component: maintenance
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cleanup
+              image: vulnerability-scanner:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Running cleanup tasks..."
+                  # Clean old scan reports
+                  find /app/reports -name "*.pdf" -mtime +90 -delete
+                  # Clean old logs
+                  find /app/logs -name "*.log" -mtime +30 -delete
+                  # Update Nuclei templates
+                  nuclei -update-templates -templates-directory /app/nuclei-templates
+                  echo "Cleanup completed"
+              volumeMounts:
+                - name: reports-volume
+                  mountPath: /app/reports
+                - name: logs-volume
+                  mountPath: /app/logs
+                - name: nuclei-templates
+                  mountPath: /app/nuclei-templates
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+          volumes:
+            - name: reports-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-reports
+            - name: logs-volume
+              persistentVolumeClaim:
+                claimName: vulnerability-scanner-logs
+            - name: nuclei-templates
+              persistentVolumeClaim:
+                claimName: nuclei-templates
+          restartPolicy: OnFailure
