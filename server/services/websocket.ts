@@ -22,7 +22,7 @@ export interface WSConnection {
 }
 
 export class WebSocketService {
-  private wss: WebSocket.Server | null = null;
+  private wss: WebSocketServer | null = null;
   private connections: Map<string, WSConnection> = new Map();
   private pingInterval: NodeJS.Timeout | null = null;
 
