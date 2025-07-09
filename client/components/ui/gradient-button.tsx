@@ -41,10 +41,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
 
   const isDisabled = disabled || isLoading;
 
-  const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props;
-
   return (
     <motion.button
+      type={type}
       className={`
         relative overflow-hidden rounded-lg font-semibold
         bg-gradient-to-r ${variants[variant]}
@@ -54,9 +53,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
         ${className}
       `}
       disabled={isDisabled}
+      onClick={onClick}
       whileHover={!isDisabled ? { scale: 1.02 } : {}}
       whileTap={!isDisabled ? { scale: 0.98 } : {}}
-      {...buttonProps}
     >
       {/* Animated background glow */}
       <motion.div
