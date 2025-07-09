@@ -257,10 +257,13 @@ export const aiAnalysisQueries = new Proxy({} as any, {
 
 export const logQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_logQueries) {
       console.error(
         "Database access attempted before initialization for logQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
