@@ -185,13 +185,38 @@ export function createExpressServer() {
     },
   );
 
-  // 404 handler
-  app.use("*", (req, res) => {
-    res.status(404).json({
-      error: "Not found",
-      path: req.originalUrl,
+  // In production, serve static files and handle SPA routing
+  if (process.env.NODE_ENV === "production") {
+    const __dirname = import.meta.dirname || process.cwd();
+    const distPath = path.join(__dirname, "../spa");
+    
+    console.log("Serving static files from:", distPath);
+    
+    // Serve static files
+    app.use(express.static(distPath));
+    
+    // Handle React Router - serve index.html for all non-API routes
+    app.get("*", (req, res) => {
+      // Don't serve index.html for API routes
+      if (
+        req.path.startsWith("/api/") ||
+        req.path.startsWith("/health") ||
+        req.path.startsWith("/ws")
+      ) {
+        return res.status(404).json({ error: "API endpoint not found" });
+      }
+      
+      res.sendFile(path.join(distPath, "index.html"));
     });
-  });
+  } else {
+    // 404 handler for development
+    app.use("*", (req, res) => {
+      res.status(404).json({
+        error: "Not found",
+        path: req.originalUrl,
+      });
+    });
+  }
 
   return app;
 }

@@ -1,4 +1,4 @@
-import WebSocket from "ws";
+import { WebSocketServer } from "ws";
 import { Server } from "http";
 import { v4 as uuidv4 } from "uuid";
 
@@ -16,13 +16,13 @@ export interface WSMessage {
 
 export interface WSConnection {
   id: string;
-  ws: WebSocket;
+  ws: any;
   subscribedScans: Set<string>;
   lastPing: number;
 }
 
 export class WebSocketService {
-  private wss: WebSocket.Server | null = null;
+  private wss: WebSocketServer | null = null;
   private connections: Map<string, WSConnection> = new Map();
   private pingInterval: NodeJS.Timeout | null = null;
 
@@ -32,7 +32,7 @@ export class WebSocketService {
       return;
     }
 
-    this.wss = new WebSocket.Server({
+    this.wss = new WebSocketServer({
       server,
       path: "/ws",
       perMessageDeflate: false,
