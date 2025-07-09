@@ -29,13 +29,15 @@ export default function GlassCard({
       )}
       style={{
         background:
-          variant === "primary"
+          style?.background ||
+          (variant === "primary"
             ? "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 197, 253, 0.1) 100%)"
             : variant === "secondary"
               ? "linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.5) 100%)"
-              : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+              : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)"),
         boxShadow:
           "0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+        ...style,
       }}
     >
       {/* Subtle inner border */}
