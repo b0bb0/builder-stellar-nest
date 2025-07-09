@@ -1,76 +1,110 @@
 version: "3.8"
 
 services:
-  luminous-flow-dev:
+  fusion-scanner:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-      target: development
-    container_name: luminous-flow-dev
-    restart: unless-stopped
-    env_file:
-      - .env
+      dockerfile: Dockerfile.preconfigured
+    container_name: fusion-scanner-app
     ports:
       - "8080:8080"
-      - "8081:8081" # WebSocket port
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=8080
-      - DATABASE_URL=/app/data/development.db
-      - NUCLEI_PATH=/usr/local/bin/nuclei
+      - DATABASE_PATH=/app/data/scanner.db
       - NUCLEI_TEMPLATES_PATH=/app/nuclei-templates
-      - NUCLEI_TIMEOUT=300
-      - NUCLEI_RATE_LIMIT=150
-      - NUCLEI_MAX_CONCURRENT=15
-      - MAX_CONCURRENT_SCANS=3
-      - WS_ENABLED=true
-      - WS_PORT=8081
-      - LOG_LEVEL=debug
-      - AI_ENABLED=false # Disabled by default for dev
+      - LOGS_PATH=/app/logs
+      - MAX_CONCURRENT_SCANS=5
+      - SCAN_TIMEOUT=300000
+      - WEBSOCKET_ENABLED=true
+      - AI_ANALYSIS_ENABLED=false
+      - DEMO_MODE=true
+      - CORS_ORIGIN=*
     volumes:
-      - .:/app
-      - /app/node_modules # Anonymous volume for node_modules
-      - /app/dist # Prevent overwriting built files
-      - scanner_data_dev:/app/data
-      - scanner_logs_dev:/app/logs
-      - nuclei_templates_dev:/app/nuclei-templates
+      - scanner_data:/app/data
+      - scanner_logs:/app/logs
+      - nuclei_templates:/app/nuclei-templates
     networks:
-      - scanner_network_dev
+      - scanner_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    stdin_open: true
-    tty: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fusion-scanner.rule=Host(`localhost`)"
+      - "traefik.http.services.fusion-scanner.loadbalancer.server.port=8080"
 
-  # Database admin tool (optional)
-  sqlite-web:
-    image: coleifer/sqlite-web
-    container_name: luminous-flow-db-admin
-    restart: unless-stopped
+  # Optional: Add a reverse proxy for production
+  traefik:
+    image: traefik:v3.0
+    container_name: fusion-scanner-proxy
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
     ports:
-      - "8082:8080"
+      - "80:80"
+      - "443:443"
+      - "8090:8080" # Traefik dashboard
     volumes:
-      - scanner_data_dev:/data
-    environment:
-      - SQLITE_DATABASE=/data/development.db
-    depends_on:
-      - luminous-flow-dev
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - scanner_network_dev
+      - scanner_network
+    restart: unless-stopped
     profiles:
-      - tools
+      - "proxy"
 
-volumes:
-  scanner_data_dev:
-    driver: local
-  scanner_logs_dev:
-    driver: local
-  nuclei_templates_dev:
-    driver: local
+  # Optional: Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: fusion-scanner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - scanner_network
+    restart: unless-stopped
+    profiles:
+      - "cache"
+
+  # Optional: PostgreSQL for advanced data storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: fusion-scanner-postgres
+    environment:
+      - POSTGRES_DB=scanner
+      - POSTGRES_USER=scanner
+      - POSTGRES_PASSWORD=scanner_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - scanner_network
+    restart: unless-stopped
+    profiles:
+      - "database"
 
 networks:
-  scanner_network_dev:
+  scanner_network:
     driver: bridge
+
+volumes:
+  scanner_data:
+    driver: local
+  scanner_logs:
+    driver: local
+  nuclei_templates:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local

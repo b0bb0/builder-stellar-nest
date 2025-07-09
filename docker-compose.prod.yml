@@ -1,65 +1,81 @@
 version: "3.8"
 
 services:
-  luminous-flow:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: luminous-flow-scanner
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env.production
+  fusion-scanner:
+    extends:
+      file: docker-compose.yml
+      service: fusion-scanner
     environment:
       - NODE_ENV=production
       - PORT=8080
-      - DATABASE_URL=/app/data/production.db
-      - NUCLEI_PATH=/usr/local/bin/nuclei
+      - DATABASE_PATH=/app/data/scanner.db
       - NUCLEI_TEMPLATES_PATH=/app/nuclei-templates
-      - NUCLEI_TIMEOUT=600
-      - NUCLEI_RATE_LIMIT=100
-      - NUCLEI_MAX_CONCURRENT=15
-      - MAX_CONCURRENT_SCANS=3
-      - WS_ENABLED=true
-      - LOG_LEVEL=info
-    volumes:
-      - scanner_data:/app/data
-      - scanner_logs:/app/logs
-      - nuclei_templates:/app/nuclei-templates
-    networks:
-      - scanner_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - LOGS_PATH=/app/logs
+      - MAX_CONCURRENT_SCANS=10
+      - SCAN_TIMEOUT=600000
+      - WEBSOCKET_ENABLED=true
+      - AI_ANALYSIS_ENABLED=true
+      - DEMO_MODE=false
+      - CORS_ORIGIN=https://yourdomain.com
+      - SSL_ENABLED=true
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_WINDOW=900000 # 15 minutes
+      - RATE_LIMIT_MAX=100
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2"
+        reservations:
+          memory: 2G
+          cpus: "1"
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
-  # Optional: Nginx reverse proxy
-  nginx:
-    image: nginx:alpine
-    container_name: luminous-flow-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+  traefik:
+    extends:
+      file: docker-compose.yml
+      service: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@yourdomain.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - luminous-flow
-    networks:
-      - scanner_network
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.yourdomain.com`)"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+    command: redis-server --appendonly yes --requirepass your_redis_password
+    environment:
+      - REDIS_PASSWORD=your_redis_password
+
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+    environment:
+      - POSTGRES_DB=scanner
+      - POSTGRES_USER=scanner
+      - POSTGRES_PASSWORD=secure_production_password
 
 volumes:
-  scanner_data:
+  letsencrypt:
     driver: local
-  scanner_logs:
-    driver: local
-  nuclei_templates:
-    driver: local
-
-networks:
-  scanner_network:
-    driver: bridge
