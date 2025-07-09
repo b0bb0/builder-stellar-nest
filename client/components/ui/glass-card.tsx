@@ -12,6 +12,7 @@ export default function GlassCard({
   children,
   className,
   variant = "default",
+  style,
 }: GlassCardProps) {
   const variants = {
     default: "bg-white/10 border-white/20",
