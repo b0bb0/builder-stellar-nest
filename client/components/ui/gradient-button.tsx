@@ -2,14 +2,17 @@ import React from "react";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
 
-interface GradientButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface GradientButtonProps {
   variant?: "primary" | "secondary" | "danger";
   size?: "sm" | "md" | "lg";
   icon?: LucideIcon;
   iconPosition?: "left" | "right";
   isLoading?: boolean;
   children: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: "button" | "submit" | "reset";
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
@@ -21,7 +24,8 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   children,
   className = "",
   disabled,
-  ...props
+  onClick,
+  type = "button",
 }) => {
   const variants = {
     primary: "from-pink-500 via-purple-500 to-cyan-500",
@@ -39,6 +43,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
 
   return (
     <motion.button
+      type={type}
       className={`
         relative overflow-hidden rounded-lg font-semibold
         bg-gradient-to-r ${variants[variant]}
@@ -48,9 +53,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
         ${className}
       `}
       disabled={isDisabled}
+      onClick={onClick}
       whileHover={!isDisabled ? { scale: 1.02 } : {}}
       whileTap={!isDisabled ? { scale: 0.98 } : {}}
-      {...props}
     >
       {/* Animated background glow */}
       <motion.div

@@ -187,10 +187,13 @@ function initializeQueries() {
 // Getter functions to safely access queries
 export const scanQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_scanQueries) {
       console.error(
         "Database access attempted before initialization for scanQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
@@ -206,10 +209,13 @@ export const scanQueries = new Proxy({} as any, {
 
 export const vulnerabilityQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_vulnerabilityQueries) {
       console.error(
         "Database access attempted before initialization for vulnerabilityQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
@@ -227,10 +233,13 @@ export const vulnerabilityQueries = new Proxy({} as any, {
 
 export const aiAnalysisQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_aiAnalysisQueries) {
       console.error(
         "Database access attempted before initialization for aiAnalysisQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
@@ -248,10 +257,13 @@ export const aiAnalysisQueries = new Proxy({} as any, {
 
 export const logQueries = new Proxy({} as any, {
   get(target, prop) {
+    if (typeof prop === "symbol") {
+      return undefined;
+    }
     if (!_queriesInitialized || !_logQueries) {
       console.error(
         "Database access attempted before initialization for logQueries." +
-          prop,
+          String(prop),
       );
       throw new Error(
         "Database not initialized. Call initializeDatabase() first.",
