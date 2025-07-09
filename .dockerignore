@@ -1,50 +1,43 @@
-# Dependencies
-node_modules
-**/node_modules/**
+# Development files
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+.npm
+.yarn
+.pnpm-debug.log*
 
-# Build artifacts
-dist
-build
-.next
-out
-*.tsbuildinfo
-
-# Environment files
+# Environment files (use specific production env)
 .env
-.env.*
-!.env.example
 .env.local
 .env.development
 .env.test
-.env.production
+.env.docker
 
-# Logs
-logs
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Documentation
+README.md
+README-*.md
+docs/
+*.md
+
+# Docker files (except the ones we need)
+Dockerfile.dev
+docker-compose.yml
+docker-compose.override.yml
+docker-dev.sh
+docker-*.sh
+
+# Logs and temporary files
+logs/
 *.log
-log.txt
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-data
-*.db
-*.db-shm
-*.db-wal
-
-# Coverage directory used by tools like istanbul
-coverage
-*.lcov
-.nyc_output
+tmp/
+temp/
 
 # IDE and editor files
 .vscode/
@@ -52,10 +45,6 @@ coverage
 *.swp
 *.swo
 *~
-.cursor
-.fleet
-.sublime-workspace
-*.sublime-project
 
 # OS generated files
 .DS_Store
@@ -66,77 +55,57 @@ coverage
 ehthumbs.db
 Thumbs.db
 
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Docker
-Dockerfile*
-docker-compose*.yml
-.dockerignore
-
-# Documentation
-*.md
-!README.md
-docs/
-documentation/
-
-# Testing
-tests/
-test/
-spec/
+# Test files
+coverage/
+.coverage
+.nyc_output
 __tests__/
-fixtures-*
-*.test.*
-*.spec.*
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.tmp.*
-*.cache
+# Build artifacts (client-side)
+dist/
+build/
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Local development data
+data/
+*.db
+*.db-wal
+*.db-shm
 
 # Package manager files
+package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# CI/CD
-.github/
-.gitlab-ci.yml
-.travis.yml
-.circleci/
-.jenkins/
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
 
-# Other tools
+# Optional npm cache directory
+.npm/
+
+# ESLint cache
 .eslintcache
-.prettier*
-.editorconfig
-.nvmrc
-.node-version
 
-# Application specific
-nuclei-templates/
-ssl/
-backup-*.tar.gz
-*.backup
+# Stylelint cache
+.stylelintcache
 
-# Netlify
-.netlify/
+# Prettier cache
+.prettier-cache
 
-# Python (if any)
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv/
+# TypeScript cache
+*.tsbuildinfo
 
-# Misc
-*.tgz
-*.tar.gz
-*.zip
-.env.docker
+# Deployment scripts (keep only production ones)
+deploy-dev.sh
+setup-*.sh
