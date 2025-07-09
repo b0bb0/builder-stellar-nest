@@ -24,7 +24,8 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   children,
   className = "",
   disabled,
-  ...props
+  onClick,
+  type = "button",
 }) => {
   const variants = {
     primary: "from-pink-500 via-purple-500 to-cyan-500",
