@@ -37,6 +37,8 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
 
   const isDisabled = disabled || isLoading;
 
+  const { onDrag, onDragStart, onDragEnd, ...buttonProps } = props;
+
   return (
     <motion.button
       className={`
@@ -50,7 +52,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       disabled={isDisabled}
       whileHover={!isDisabled ? { scale: 1.02 } : {}}
       whileTap={!isDisabled ? { scale: 0.98 } : {}}
-      {...props}
+      {...buttonProps}
     >
       {/* Animated background glow */}
       <motion.div
