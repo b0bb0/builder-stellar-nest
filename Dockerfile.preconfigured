@@ -1,0 +1,119 @@
+# Pre-configured Docker image for Fusion Scanner
+# This image comes with all settings and tools pre-installed
+
+# Multi-stage build for optimized production image
+FROM node:18-alpine AS builder
+
+# Install system dependencies for building
+RUN apk add --no-cache \
+    curl \
+    unzip \
+    sqlite \
+    bash \
+    ca-certificates \
+    python3 \
+    make \
+    g++ \
+    git
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci
+
+# Copy application code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine
+
+# Install runtime system dependencies
+RUN apk add --no-cache \
+    curl \
+    unzip \
+    sqlite \
+    bash \
+    ca-certificates \
+    jq \
+    wget \
+    git
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
+# Copy other necessary files
+COPY shared ./shared
+COPY docker ./docker
+
+# Install and configure Nuclei
+RUN curl -L https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei_3.2.9_linux_amd64.zip -o nuclei.zip && \
+    unzip nuclei.zip && \
+    mv nuclei /usr/local/bin/ && \
+    chmod +x /usr/local/bin/nuclei && \
+    rm nuclei.zip
+
+# Create directories with proper permissions
+RUN mkdir -p /app/data /app/logs /app/nuclei-templates /app/config
+
+# Update Nuclei templates
+RUN nuclei -update-templates -templates-directory /app/nuclei-templates
+
+# Pre-configure application settings
+COPY docker/config/app-config.json /app/config/
+COPY docker/config/default.env /app/.env
+COPY docker/init.sh /app/
+
+# Initialize database with sample data
+RUN sqlite3 /app/data/scanner.db < /app/docker/init-database.sql
+
+# Create non-root user
+RUN addgroup -g 1001 -S scanner && \
+    adduser -S scanner -u 1001 -G scanner
+
+# Set ownership
+RUN chown -R scanner:scanner /app
+
+# Copy and set up initialization script
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh /app/init.sh
+
+# Switch to non-root user
+USER scanner
+
+# Expose port
+EXPOSE 8080
+
+# Add labels for metadata
+LABEL maintainer="Fusion Scanner Team" \
+      version="2.0" \
+      description="Pre-configured Fusion Scanner with all dependencies and settings" \
+      org.opencontainers.image.title="Fusion Scanner" \
+      org.opencontainers.image.description="Cybersecurity vulnerability scanner" \
+      org.opencontainers.image.source="https://github.com/fusion-scanner/app"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Use custom entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Start application
+CMD ["npm", "start"]

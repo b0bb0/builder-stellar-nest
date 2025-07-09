@@ -18,7 +18,19 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "deploy:gcp": "bash deploy-gcp.sh",
+    "docker:build": "docker build -t fusion-scanner .",
+    "docker:build-pre": "docker build -f Dockerfile.preconfigured -t fusion-scanner-pre .",
+    "docker:run": "docker run -p 8080:8080 fusion-scanner",
+    "docker:run-pre": "docker run -p 8080:8080 fusion-scanner-pre",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:up-prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
+    "docker:up-full": "docker-compose --profile proxy --profile cache --profile database up -d",
+    "gcp:build": "gcloud builds submit --config cloudbuild.yaml",
+    "gcp:deploy": "gcloud run services replace cloud-run-service.yaml"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
