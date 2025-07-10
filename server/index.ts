@@ -202,7 +202,8 @@ export function createHttpServer() {
   try {
     initializeDatabase();
   } catch (error) {
-    console.error("Database initialization failed, using mock data:", error);
+    console.error("Database initialization failed, server cannot start:", error);
+    process.exit(1);
   }
 
   // Create Express app

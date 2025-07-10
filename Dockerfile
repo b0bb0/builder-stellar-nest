@@ -1,7 +1,7 @@
 # Multi-stage build for optimized production image
 
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Install system dependencies for building
 RUN apk add --no-cache \
@@ -18,10 +18,10 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json package-lock.json ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy application code
 COPY . .
@@ -30,7 +30,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install runtime system dependencies
 RUN apk add --no-cache \
@@ -44,10 +44,10 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json package-lock.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
@@ -55,9 +55,10 @@ COPY --from=builder /app/public ./public
 
 # Copy other necessary files
 COPY shared ./shared
+COPY data ./data
 
 # Install Nuclei
-RUN curl -L https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei_3.2.9_linux_amd64.zip -o nuclei.zip && \
+RUN curl -L https://github.com/projectdiscovery/nuclei/releases/download/v3.2.9/nuclei_3.2.9_linux_amd64.zip -o nuclei.zip && \
     unzip nuclei.zip && \
     mv nuclei /usr/local/bin/ && \
     chmod +x /usr/local/bin/nuclei && \
@@ -67,7 +68,7 @@ RUN curl -L https://github.com/projectdiscovery/nuclei/releases/latest/download/
 RUN mkdir -p /app/data /app/logs /app/nuclei-templates
 
 # Update Nuclei templates
-RUN nuclei -update-templates -templates-directory /app/nuclei-templates
+RUN nuclei -update-templates -td /app/nuclei-templates
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
